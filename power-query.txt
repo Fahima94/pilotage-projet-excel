@@ -1,17 +1,30 @@
-// Power Query — nettoyage de l'onglet "Données"
-// Tableau source nommé "Interventions" (onglet Données, A3:F21)
+// Power Query — consolidation des ventes (onglets Site, Agences, Plateforme)
+// Source : trois tableaux nommés VentesSite, VentesAgence, VentesPlateforme
 // À coller dans : Données > Obtenir des données > À partir d'autres sources > Requête vide > Éditeur avancé
 
 let
-    Source = Excel.CurrentWorkbook(){[Name="Interventions"]}[Content],
-    SansVides = Table.SelectRows(Source, each not List.IsEmpty(List.RemoveMatchingItems(Record.FieldValues(_), {"", null}))),
-    SitePropre = Table.TransformColumns(SansVides, {{"site", each Text.Proper(Text.Trim(_)), type text}}),
-    TypePropre = Table.TransformColumns(SitePropre, {{"type_intervention", each Text.Proper(Text.Trim(_)), type text}}),
-    Dates = Table.TransformColumnTypes(TypePropre, {{"date_intervention", type date}, {"duree_min", Int64.Type}}),
-    Trie = Table.Sort(Dates, {{"date_intervention", Order.Ascending}})
-in
-    Trie
+    Site = Table.AddColumn(Excel.CurrentWorkbook(){[Name="VentesSite"]}[Content], "canal", each "Site", type text),
+    Agence = Table.AddColumn(Excel.CurrentWorkbook(){[Name="VentesAgence"]}[Content], "canal", each "Agence", type text),
+    Plateforme = Table.AddColumn(Excel.CurrentWorkbook(){[Name="VentesPlateforme"]}[Content], "canal", each "Plateforme", type text),
+    Union = Table.Combine({Site, Agence, Plateforme}),
 
-// Ensuite : Fermer et charger vers > Tableau, feuille "Données nettoyées"
-// Puis Insertion > Tableau croisé dynamique :
-//   Lignes = site, Colonnes = type_intervention, Valeurs = Nombre de date_intervention et Somme de duree_min
+    Nettoyage = Table.TransformColumns(Union, {
+        {"destination", each Text.Proper(Text.Trim(_)), type text},
+        {"canal", each Text.Proper(Text.Trim(_)), type text}
+    }),
+
+    Typage = Table.TransformColumnTypes(Nettoyage, {
+        {"date_vente", type date},
+        {"pax", Int64.Type},
+        {"prix_moyen", type number}
+    }),
+
+    CA = Table.AddColumn(Typage, "CA", each [pax] * [prix_moyen], type number),
+    Tri = Table.Sort(CA, {{"date_vente", Order.Ascending}})
+in
+    Tri
+
+// Puis : Fermer et charger vers > Tableau, feuille "Ventes"
+// Insertion > Tableau croisé dynamique :
+//   Lignes = destination, Colonnes = canal, Valeurs = Somme de pax et Somme de CA
+// Le pace se lit ensuite en comparant les pax vendus à J-90 au rythme nécessaire.
