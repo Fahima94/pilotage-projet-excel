@@ -1,0 +1,17 @@
+// Power Query — nettoyage de l'onglet "Données"
+// Tableau source nommé "Interventions" (onglet Données, A3:F21)
+// À coller dans : Données > Obtenir des données > À partir d'autres sources > Requête vide > Éditeur avancé
+
+let
+    Source = Excel.CurrentWorkbook(){[Name="Interventions"]}[Content],
+    SansVides = Table.SelectRows(Source, each not List.IsEmpty(List.RemoveMatchingItems(Record.FieldValues(_), {"", null}))),
+    SitePropre = Table.TransformColumns(SansVides, {{"site", each Text.Proper(Text.Trim(_)), type text}}),
+    TypePropre = Table.TransformColumns(SitePropre, {{"type_intervention", each Text.Proper(Text.Trim(_)), type text}}),
+    Dates = Table.TransformColumnTypes(TypePropre, {{"date_intervention", type date}, {"duree_min", Int64.Type}}),
+    Trie = Table.Sort(Dates, {{"date_intervention", Order.Ascending}})
+in
+    Trie
+
+// Ensuite : Fermer et charger vers > Tableau, feuille "Données nettoyées"
+// Puis Insertion > Tableau croisé dynamique :
+//   Lignes = site, Colonnes = type_intervention, Valeurs = Nombre de date_intervention et Somme de duree_min
