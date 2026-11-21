@@ -2,7 +2,7 @@
 
 ![Tableau de bord du classeur](assets/tableau-de-bord.png)
 
-Un classeur Excel de pilotage pour une saison de tour-opérateur, construit à partir de mon expérience réelle chez **Partir Pas Cher (Switch PPC France)** : production interne, achat des hôtels et des places d'avion, revenue management, gestion de crise.
+Un classeur Excel de pilotage pour une saison de tour-opérateur, construit à partir de mon expérience réelle chez **Partir Pas Cher (Switch PPC France)** : production interne, achat des hôtels et des places d'avion, revenue management, gestion de crise. Destinations phares : République dominicaine, Costa Rica, Thaïlande, Dubaï.
 
 L'objectif n'était pas de faire joli : c'était de savoir, chaque lundi, quelles places allaient rester invendues, quels contrats hôteliers coûtaient trop cher, et quelle action déclencher avant qu'il ne soit trop tard.
 
