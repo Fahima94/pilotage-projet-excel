@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pilotage saison hôtelière — démonstration</title>
+<style>
+:root{--ink:#0f2b3d;--slate:#0f3d5c;--soft:#eef3f7;--line:#d5e0e8;--ok:#1f7a5c;--warn:#b4622a;--bad:#a8324a}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:#f6f8fa}
+header{background:var(--slate);color:#fff;padding:22px 28px}
+header h1{margin:0;font-size:20px;letter-spacing:.2px}
+header p{margin:6px 0 0;font-size:13px;opacity:.85}
+.wrap{max-width:1080px;margin:0 auto;padding:22px 20px 60px}
+.note{background:#fff6e8;border:1px solid #f0d9b5;color:#7a4b13;font-size:12.5px;padding:9px 12px;border-radius:8px;margin-bottom:18px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:20px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.kpi span{display:block;font-size:12px;color:#5b7284;text-transform:uppercase;letter-spacing:.4px}
+.kpi strong{display:block;font-size:24px;margin-top:6px}
+.kpi small{font-size:12px;color:var(--ok)}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:13.5px}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line)}
+th{background:var(--soft);font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;color:#4a6273}
+tbody tr:hover{background:#fafcfe}
+.bar{height:7px;background:#e6edf3;border-radius:4px;overflow:hidden;min-width:70px}
+.bar i{display:block;height:100%;background:var(--slate)}
+.tag{font-size:11.5px;padding:3px 8px;border-radius:20px;font-weight:600}
+.t-ok{background:#e6f3ee;color:var(--ok)}
+.t-warn{background:#fdf0e3;color:var(--warn)}
+.t-bad{background:#fbe8ec;color:var(--bad)}
+.controls{display:flex;gap:10px;margin:0 0 14px;flex-wrap:wrap}
+select,button{font:inherit;font-size:13px;padding:8px 12px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--ink)}
+button{cursor:pointer}
+button:hover{border-color:var(--slate)}
+h2{font-size:15px;margin:26px 0 10px;color:var(--slate)}
+footer{margin-top:26px;font-size:12px;color:#6b8195}
+</style>
+</head>
+<body>
+<header>
+<h1>Pilotage d'une saison hôtelière</h1>
+<p>Contrats, allotements, invendus et actions correctives — maquette interactive</p>
+</header>
+<div class="wrap">
+<p class="note">Démonstration sur données fictives. Aucun nom de client réel : le classeur d'origine a été anonymisé. Les filtres et le calcul de marge fonctionnent.</p>
+
+<div class="kpis">
+  <div class="kpi"><span>Contrats suivis</span><strong id="k1">52</strong><small>4 destinations</small></div>
+  <div class="kpi"><span>Invendus</span><strong id="k2">14,8 %</strong><small>−15 % vs saison N-1</small></div>
+  <div class="kpi"><span>Marge moyenne</span><strong id="k3">21,4 %</strong><small>+12,7 % après renégociation</small></div>
+  <div class="kpi"><span>Alertes ouvertes</span><strong id="k4">7</strong><small>dont 2 critiques</small></div>
+</div>
+
+<div class="controls">
+  <select id="mois">
+    <option value="">Tous les mois de départ</option>
+    <option>Janvier</option><option>Février</option><option>Mars</option>
+    <option>Avril</option><option>Mai</option><option>Juin</option>
+    <option>Juillet</option><option>Août</option><option>Septembre</option>
+    <option>Octobre</option><option>Novembre</option><option>Décembre</option>
+  </select>
+  <select id="statut">
+    <option value="">Tous les statuts</option>
+    <option>À surveiller</option><option>Critique</option><option>Sous contrôle</option>
+  </select>
+  <button id="reset">Réinitialiser</button>
+</div>
+
+<table>
+<thead><tr>
+<th>Contrat</th><th>Destination</th><th>Départ</th><th>Allotement</th><th>Remplissage</th><th>Marge</th><th>Statut</th>
+</tr></thead>
+<tbody id="rows"></tbody>
+</table>
+
+<h2>Lecture de la saison</h2>
+<p style="font-size:13.5px;line-height:1.6;max-width:74ch;color:#3b5567">Les contrats dont le remplissage passe sous 60 % à trois semaines du départ déclenchent une action : baisse de tarif ciblée, bascule vers un autre allotement, ou restitution des chambres au partenaire. C'est ce suivi hebdomadaire qui a ramené les invendus de 30 % à 15 % sur une saison.</p>
+
+<footer>Fahima Behillil · maquette réalisée à partir du classeur de pilotage utilisé en production · <a href="https://fahima94.github.io/portfolio/" style="color:var(--slate)">portfolio</a></footer>
+</div>
+
+<script>
+const data=[
+ ["Contrat Costa Brava 4★","Espagne","Juillet",120,86,24.5,"Sous contrôle"],
+ ["Contrat Andalousie 3★","Espagne","Août",90,41,19.2,"Critique"],
+ ["Contrat Algarve 4★","Portugal","Juillet",60,33,22.8,"À surveiller"],
+ ["Contrat Madère 5★","Portugal","Septembre",40,31,27.1,"Sous contrôle"],
+ ["Contrat Crète 4★","Grèce","Juin",80,52,21.0,"À surveiller"],
+ ["Contrat Rhodes 3★","Grèce","Août",110,68,18.4,"Sous contrôle"],
+ ["Contrat Sicile 4★","Italie","Septembre",70,29,23.6,"Critique"],
+ ["Contrat Sardaigne 4★","Italie","Juillet",50,38,25.2,"À surveiller"],
+ ["Contrat Riviera 5★","Italie","Mai",30,22,29.8,"Sous contrôle"],
+ ["Contrat Marrakech 4★","Maroc","Octobre",60,44,26.4,"Sous contrôle"],
+ ["Contrat Dakhla 4★","Maroc","Novembre",45,19,20.6,"À surveiller"],
+ ["Contrat Hammamet 3★","Tunisie","Juin",75,57,17.9,"Sous contrôle"]
+];
+const tag=s=>s==="Critique"?"t-bad":s==="À surveiller"?"t-warn":"t-ok";
+function render(){
+ const m=document.getElementById("mois").value, st=document.getElementById("statut").value;
+ const rows=data.filter(r=>(!m||r[2]===m)&&(!st||r[6]===st));
+ const tb=document.getElementById("rows");
+ tb.innerHTML=rows.map(r=>{
+  const taux=Math.round(r[4]/r[3]*100);
+  return `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td>
+  <td><div style="display:flex;align-items:center;gap:8px"><span class="bar"><i style="width:${Math.min(taux,100)}%"></i></span>${taux} %</div></td>
+  <td>${r[5].toFixed(1).replace(".",",")} %</td><td><span class="tag ${tag(r[6])}">${r[6]}</span></td></tr>`}).join("");
+ document.getElementById("k1").textContent=rows.length;
+ const totA=rows.reduce((s,r)=>s+r[3],0), totV=rows.reduce((s,r)=>s+r[4],0);
+ document.getElementById("k2").textContent=(totA?((totA-totV)/totA*100):0).toFixed(1).replace(".",",")+" %";
+ document.getElementById("k3").textContent=(rows.length?rows.reduce((s,r)=>s+r[5],0)/rows.length:0).toFixed(1).replace(".",",")+" %";
+ document.getElementById("k4").textContent=rows.filter(r=>r[6]!=="Sous contrôle").length;
+}
+document.getElementById("mois").onchange=render;
+document.getElementById("statut").onchange=render;
+document.getElementById("reset").onclick=()=>{document.getElementById("mois").value="";document.getElementById("statut").value="";render()};
+render();
+</script>
+</body>
+</html>
